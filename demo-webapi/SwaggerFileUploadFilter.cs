@@ -9,33 +9,33 @@ using System.Threading.Tasks;
 namespace demo_webapi
 {
     public class SwaggerFileUploadFilter : IOperationFilter
-{
-    public void Apply(Operation operation, OperationFilterContext context)
     {
-        if (!context.ApiDescription.HttpMethod.Equals("POST", StringComparison.OrdinalIgnoreCase) &&
-         !context.ApiDescription.HttpMethod.Equals("PUT", StringComparison.OrdinalIgnoreCase))
+        public void Apply(Operation operation, OperationFilterContext context)
         {
-            return;
-        }
-        var fileParameters = context.ApiDescription.ActionDescriptor.Parameters.Where(n => n.ParameterType == typeof(IFormFile)).ToList();
-        if (fileParameters.Count < 0)
-        {
-            return;
-        }
-        operation.Consumes.Add("multipart/form-data");
-        foreach (var fileParameter in fileParameters)
-        {
-            var parameter = operation.Parameters.Single(n => n.Name == fileParameter.Name);
-            operation.Parameters.Remove(parameter);
-            operation.Parameters.Add(new NonBodyParameter
+            if (!context.ApiDescription.HttpMethod.Equals("POST", StringComparison.OrdinalIgnoreCase) &&
+             !context.ApiDescription.HttpMethod.Equals("PUT", StringComparison.OrdinalIgnoreCase))
             {
-                Name = parameter.Name,
-                In = "formData",
-                Description = parameter.Description,
-                Required = parameter.Required,
-                Type = "file"
-            });
+                return;
+            }
+            var fileParameters = context.ApiDescription.ActionDescriptor.Parameters.Where(n => n.ParameterType == typeof(IFormFile)).ToList();
+            if (fileParameters.Count < 0)
+            {
+                return;
+            }
+            operation.Consumes.Add("multipart/form-data");
+            foreach (var fileParameter in fileParameters)
+            {
+                var parameter = operation.Parameters.Single(n => n.Name == fileParameter.Name);
+                operation.Parameters.Remove(parameter);
+                operation.Parameters.Add(new NonBodyParameter
+                {
+                    Name = parameter.Name,
+                    In = "formData",
+                    Description = parameter.Description,
+                    Required = parameter.Required,
+                    Type = "file"
+                });
+            }
         }
     }
-}
 }
